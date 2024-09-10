@@ -1,0 +1,44 @@
+service: notes-api
+
+provider:
+  name: aws
+  runtime: nodejs20.x
+
+
+functions:
+  createNote:
+    handler: functions/createNote.handler
+    events:
+      - http: 
+          path: /create-note
+          method: post
+          cors: true
+  updateNote:
+    handler: functions/updateNote.handler
+    events:
+      - http:
+          path: /notes/{id}
+          method: put
+          cors: true
+  deleteNote:
+    handler: functions/deleteNote.handler
+    events:
+      - http:
+          path: /notes/{id}
+          method: delete
+          cors: true
+  getSingleNote:
+    handler: functions/getSingleNote.handler
+    events:
+      - http:
+          path: /notes/{id}
+          method: get
+          cors: true
+  getAllNotes:
+    handler: functions/getAllNotes.handler
+    events:
+      - http:
+          path: /notes
+          method: get
+          cors: true
+

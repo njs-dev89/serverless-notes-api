@@ -3,7 +3,8 @@ service: notes-api
 provider:
   name: aws
   runtime: nodejs20.x
-
+  environment:
+    NOTES_TABLE: !Ref notesTable
 
 functions:
   createNote:
@@ -13,6 +14,11 @@ functions:
           path: /create-note
           method: post
           cors: true
+    iamRoleStatements:
+      - Effect: "Allow"
+        Action:
+          - dynamodb:PutItem
+        Resource: !GetAtt notesTable.Arn
   updateNote:
     handler: functions/updateNote.handler
     events:
@@ -20,6 +26,11 @@ functions:
           path: /notes/{id}
           method: put
           cors: true
+    iamRoleStatements:
+      - Effect: "Allow"
+        Action:
+          - dynamodb:UpdateItem
+        Resource: !GetAtt notesTable.Arn
   deleteNote:
     handler: functions/deleteNote.handler
     events:
@@ -27,6 +38,11 @@ functions:
           path: /notes/{id}
           method: delete
           cors: true
+    iamRoleStatements:
+      - Effect: "Allow"
+        Action:
+          - dynamodb:DeleteItem
+        Resource: !GetAtt notesTable.Arn
   getSingleNote:
     handler: functions/getSingleNote.handler
     events:
@@ -34,6 +50,11 @@ functions:
           path: /notes/{id}
           method: get
           cors: true
+    iamRoleStatements:
+      - Effect: "Allow"
+        Action:
+          - dynamodb:GetItem
+        Resource: !GetAtt notesTable.Arn
   getAllNotes:
     handler: functions/getAllNotes.handler
     events:
@@ -41,4 +62,23 @@ functions:
           path: /notes
           method: get
           cors: true
-
+    iamRoleStatements:
+      - Effect: "Allow"
+        Action:
+          - dynamodb:Scan
+        Resource: !GetAtt notesTable.Arn
+resources:
+  Resources:
+    notesTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        BillingMode: PAY_PER_REQUEST
+        TableName: notes
+        KeySchema:
+          - AttributeName: noteId
+            KeyType: HASH
+        AttributeDefinitions:
+          - AttributeName: noteId
+            AttributeType: S
+plugins:
+  - serverless-iam-roles-per-function
